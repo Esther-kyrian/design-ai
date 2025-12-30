@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/compressorjs@1.0.9/dist/compressor.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        }
+        
+        .navbar-gradient {
+            background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%);
+            box-shadow: 0 4px 20px rgba(255, 87, 34, 0.3);
+        }
+        
+        .message-bubble-user {
+            background-color: #ff9800;
+            color: white;
+            border-radius: 20px 20px 0 20px;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+            animation: messageAppear 0.3s ease-out;
+        }
+        
+        .message-bubble-ai {
+            background: linear-gradient(135deg, #333333 0%, #444444 100%);
+            color: white;
+            border-radius: 20px 20px 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: messageAppear 0.3s ease-out;
+        }
+        
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 10px #ff9800, 0 0 20px #ff9800; }
+            to { box-shadow: 0 0 20px #ff9800, 0 0 30px #ff9800; }
+        }
+        
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease-out;
+            backdrop-filter: blur(5px);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .canvas-container {
+            border: 2px dashed #ff9800;
+            border-radius: 10px;
+            background: #f9f9f9;
+            max-width: 100%;
+        }
+        
+        .tool-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .tool-btn.active {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%) !important;
+            color: white !important;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-stack {
+                flex-direction: column;
+            }
+            
+            .mobile-full {
+                width: 100% !important;
+                margin-bottom: 1rem;
+            }
+            
+            .mobile-padding {
+                padding: 1rem !important;
+            }
+            
+            .message-bubble-user, .message-bubble-ai {
+                max-width: 90% !important;
+            }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+        }
+        
+        .depth-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .focus-glow:focus {
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.3);
+            border-color: #ff9800;
+        }
+        
+        @keyframes loadingWave {
+            0%, 60%, 100% {
+                transform: initial;
+                opacity: 0.6;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        .loading-wave {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            height: 50px;
+        }
+        
+        .loading-wave div {
+            width: 5px;
+            height: 25px;
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            border-radius: 5px;
+            animation: loadingWave 1.2s ease-in-out infinite;
+        }
+        
+        .loading-wave div:nth-child(2) { animation-delay: -1.1s; }
+        .loading-wave div:nth-child(3) { animation-delay: -1.0s; }
+        .loading-wave div:nth-child(4) { animation-delay: -0.9s; }
+        .loading-wave div:nth-child(5) { animation-delay: -0.8s; }
+        
+        .design-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #ff9800, #ff5722) border-box;
+        }
+        
+        .design-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 152, 0, 0.2);
+        }
+        
+        .drop-zone {
+            border: 3px dashed #ff9800;
+            background: rgba(255, 152, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            background: rgba(255, 152, 0, 0.1);
+            border-color: #ff5722;
+            transform: scale(1.02);
+        }
+        
+        .image-preview-container {
+            background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%, #e0e0e0);
+            background-size: 20px 20px;
+        }
+        
+        .remove-bg-btn {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-bg-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 152, 0, 0.3);
+        }
+        
+        .remove-bg-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .result-badge {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .processing {
+            animation: processing 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes processing {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .compression-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #ff5722 0%, #ff9800 100%);
+            outline: none;
+        }
+        
+        .compression-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #ff5722;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
+            transition: all 0.2s ease;
+        }
+        
+        .compression-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 87, 34, 0.7);
+        }
+        
+        .compression-value {
+            font-weight: bold;
+            color: #ff5722;
+            font-size: 1.2rem;
+        }
+        
+        .size-badge {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .compression-btn {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .compression-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        .compression-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .loader {
+            border: 4px solid rgba(255, 152, 0, 0.2);
+            border-top: 4px solid #ff9800;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .feature-badge {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        
+        .new-badge {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        
+        .pro-badge {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        
+        .converter-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #667eea 0%, #764ba2 100%) border-box;
+        }
+        
+        .converter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .conversion-option {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .conversion-option:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.1);
+        }
+        
+        .conversion-option.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .conversion-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+        }
+        
+        .conversion-option.active .conversion-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .conversion-dropzone {
+            border: 3px dashed #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .conversion-dropzone.drag-over {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+        
+        .conversion-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .conversion-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .conversion-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .conversion-result {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px dashed #cbd5e1;
+        }
+        
+        .file-info {
+            background: #e0f2fe;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .sarah-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero-section {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.9) 0%, rgba(255, 87, 34, 0.9) 100%);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+        
+        .sarah-hero {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+        }
+        
+        /* Styles pour la navbar améliorée */
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        .notification-pulse {
+            animation: notificationPulse 2s infinite;
+        }
+        
+        @keyframes notificationPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn-hover-effect {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .navbar-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-radius: 6px;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .flag-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-size: cover;
+        }
+        
+        .flag-fr {
+            background: linear-gradient(135deg, #002395 0%, #ed2939 100%);
+        }
+        
+        .flag-en {
+            background: linear-gradient(135deg, #012169 0%, #c8102e 100%);
+        }
+        
+        .language-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .call-ring {
+            animation: ringPulse 3s infinite;
+        }
+        
+        @keyframes ringPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        
+        .mobile-nav {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Améliorations pour l'importation de fichiers */
+        .file-preview-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .file-preview-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .file-preview-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+            color: white;
+        }
+        
+        .file-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #374151;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-size {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .file-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+        
+        .status-uploaded {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-processing {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-converted {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .conversion-progress {
+            width: 100%;
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        
+        .file-action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .preview-btn {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .preview-btn:hover {
+            background-color: #2563eb;
+        }
+        
+        .remove-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .remove-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        .converted-file {
+            border: 2px solid #10b981;
+            background-color: #f0fdf4;
+        }
+        
+        .download-all-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .download-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex flex-col">
+    <!-- Navigation Bar -->
+    <nav class="navbar-gradient py-3 md:py-4 px-4 md:px-6 sticky top-0 z-50">
+        <div class="container mx-auto">
+            <!-- Desktop Navigation -->
+            <div class="hidden lg:flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="relative">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white pulse-animation">
+                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center notification-pulse">
+                            <i class="fas fa-bolt text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 md:ml-4">
+                        <h1 class="text-lg md:text-xl font-bold text-white">Design AI Pro</h1>
+                        <div class="flex items-center mt-1">
+                            <div id="currentLanguageBadge" class="language-badge">
+                                <img src="SARAH AI.jpg" alt="Sarah IA" class="w-4 h-4 rounded-full mr-2">
+                                <span>Français</span>
+                            </div>
+                            <div class="text-white/80 text-xs ml-2">IA • Appel Vidéo • 3 Langues</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Language Selector -->
+                <div class="relative">
+                    <button id="languageDropdownBtn" class="bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg flex items-center transition btn-hover-effect">
+                        <img src="SARAH AI.jpg" alt="Sarah IA" class="w-5 h-5 rounded-full mr-2 object-cover">
+                        <span class="hidden md:inline">Français</span>
+                        <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                    </button>
+                    <div id="languageDropdown" class="navbar-dropdown">
+                        <div class="p-2">
+                            <div class="dropdown-item" data-lang="fr">
+                                <div class="flag-icon flag-fr mr-2"></div>
+                                <span>Français</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="en">
+                                <div class="flag-icon flag-en mr-2"></div>
+                                <span>English</span>
+                            </div>
+                            <div class="dropdown-item" data-lang="ln">
+                                <img src="SARAH AI.jpg" alt="Lingala (prononcé Ligala)" class="w-5 h-5 rounded-full mr-2 object-cover">
+                                <span>Lingala</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-3 md:space-x-4">
+                    <button id="navVideoCall" class="bg-white/20 hover:bg-white/30 text-white py-2 px-3 md:px-4 rounded-lg flex items-center transition-all duration-300 hover:scale-105 call-ring btn-hover-effect">
+                        <i class="fas fa-video mr-2"></i>
+                        <span class="hidden md:inline">Appel Vidéo</span>
+                    </button>
+                    <button id="navVoiceToggle" class="bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-full transition btn-hover-effect" title="Activer le mode vocal">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="searchModeBtn" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition btn-hover-effect" title="Activer la recherche web">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button id="imageModeBtn" class="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-full transition btn-hover-effect" title="Activer la génération d'images">
+                        <i class="fas fa-image"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div class="flex lg:hidden justify-between items-center">
+                <div class="flex items-center">
+                    <button id="mobileMenuToggle" class="text-white mr-3">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="relative">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-white">
+                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-bolt text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <h1 class="text-lg font-bold text-white">Design AI Pro</h1>
+                        <div id="mobileLanguageBadge" class="language-badge text-xs mt-1">
+                            <img src="SARAH AI.jpg" alt="Sarah IA" class="w-3 h-3 rounded-full mr-1 object-cover">
+                            <span>FR</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button id="mobileVideoCall" class="bg-white/20 text-white p-2 rounded-full">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button id="mobileVoiceToggle" class="bg-orange-500 text-white p-2 rounded-full">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="lg:hidden mobile-nav absolute top-full left-0 right-0 bg-white shadow-xl rounded-b-2xl py-4 px-6 hidden">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button id="mobileSearchToggle" class="flex flex-col items-center justify-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
+                    <i class="fas fa-search text-blue-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Recherche</span>
+                </button>
+                <button id="mobileImageToggle" class="flex flex-col items-center justify-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition">
+                    <i class="fas fa-image text-purple-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Images</span>
+                </button>
+                <button id="mobileVoiceToggleBtn" class="flex flex-col items-center justify-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition">
+                    <i class="fas fa-microphone text-green-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Vocal</span>
+                </button>
+                <button id="mobileQuestionsToggle" class="flex flex-col items-center justify-center p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition">
+                    <i class="fas fa-question text-indigo-600 text-xl mb-2"></i>
+                    <span class="text-sm font-medium">Questions</span>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-globe text-blue-500 mr-2"></i>Langue
+                </h3>
+                <div class="grid grid-cols-3 gap-2">
+                    <button class="mobile-lang-btn flex flex-col items-center p-3 border rounded-lg hover:bg-gray-50 transition" data-lang="fr">
+                        <div class="flag-icon flag-fr w-6 h-6 mb-2"></div>
+                        <span class="text-sm">Français</span>
+                    </button>
+                    <button class="mobile-lang-btn flex flex-col items-center p-3 border rounded-lg hover:bg-gray-50 transition" data-lang="en">
+                        <div class="flag-icon flag-en w-6 h-6 mb-2"></div>
+                        <span class="text-sm">English</span>
+                    </button>
+                    <button class="mobile-lang-btn flex flex-col items-center p-3 border rounded-lg hover:bg-gray-50 transition" data-lang="ln">
+                        <img src="SARAH AI.jpg" alt="Lingala" class="w-6 h-6 rounded-full mb-2 object-cover">
+                        <span class="text-sm">Lingala</span>
+                        <div class="pronunciation-note text-xs">(Ligala)</div>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <button id="mobileCallBtn" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg font-medium btn-hover-effect flex items-center justify-center">
+                    <i class="fas fa-video mr-2"></i> Appel Vidéo
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="flex-1 container mx-auto py-6 md:py-8 px-3 md:px-6">
+        <!-- Section Héro avec Sarah -->
+        <div class="hero-section p-8 mb-8 slide-up">
+            <div class="hero-content text-center">
+                <div class="mb-6">
+                    <img src="SARAH AI.jpg" alt="Sarah AI" class="sarah-hero">
+                </div>
+                <h1 class="text-3xl md:text-5xl font-bold mb-4">Bonjour, je suis Sarah AI</h1>
+                <p class="text-xl mb-6">Votre assistante IA pour l'édition d'images et la conversion de documents</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <span class="bg-white/20 px-4 py-2 rounded-full"><i class="fas fa-robot mr-2"></i>IA Avancée</span>
+                    <span class="bg-white/20 px-4 py-2 rounded-full"><i class="fas fa-bolt mr-2"></i>Rapide</span>
+                    <span class="bg-white/20 px-4 py-2 rounded-full"><i class="fas fa-shield-alt mr-2"></i>Sécurisé</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-8 text-center slide-up">
+           
+            <p class="text-gray-600 text-lg md:text-xl">Supprimez l'arrière-plan, compressez et animez vos images en un clic</p>
+            <div class="flex flex-wrap justify-center gap-2 mt-4">
+                <span class="feature-badge"><i class="fas fa-cut mr-1"></i>Suppression d'arrière-plan</span>
+                <span class="feature-badge"><i class="fas fa-compress mr-1"></i>Compression intelligente</span>
+                <span class="new-badge"><i class="fas fa-sparkles mr-1"></i>Animation IA</span>
+                <span class="pro-badge"><i class="fas fa-crown mr-1"></i>Montages professionnels</span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8" id="editor">
+            <!-- Carte de téléchargement améliorée -->
+            <div class="design-card rounded-2xl p-6 slide-up">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 mr-4">
+                        <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">1. Importez votre fichier</h2>
+                        <p class="text-gray-600">Glissez-déposez ou cliquez pour sélectionner</p>
+                    </div>
+                </div>
+                
+                <div class="drop-zone rounded-xl p-8 text-center cursor-pointer" id="dropZone">
+                    <div class="py-8">
+                        <i class="fas fa-file-upload text-5xl text-orange-400 mb-4"></i>
+                        <p class="text-xl font-medium text-gray-700 mb-2">Glissez votre fichier ici</p>
+                        <p class="text-gray-500 mb-6">ou cliquez pour parcourir vos fichiers</p>
+                        <button id="uploadBtn" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg transition flex items-center justify-center mx-auto">
+                            <i class="fas fa-folder-open mr-2"></i>Choisir un fichier
+                        </button>
+                        <input type="file" id="imageInput" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" class="hidden">
+                        <p class="text-sm text-gray-400 mt-4">Images, PDF, Word, Excel, PowerPoint jusqu'à 20MB</p>
+                    </div>
+                </div>
+                
+                <!-- Aperçu du fichier importé -->
+                <div id="filePreviewContainer" class="mt-6 hidden">
+                    <h3 class="font-bold text-gray-800 mb-3">Fichier importé</h3>
+                    <div class="file-preview-item">
+                        <div class="file-icon bg-orange-500">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="flex justify-between items-center">
+                                <p id="fileName" class="file-name"></p>
+                                <span id="fileStatus" class="file-status status-uploaded">Importé</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <p id="fileSize" class="file-size"></p>
+                                <p id="fileType" class="file-size"></p>
+                            </div>
+                            <div class="conversion-progress mt-2">
+                                <div id="uploadProgressBar" class="progress-bar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <button id="removeFileBtn" class="file-action-btn remove-btn ml-2">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="font-bold text-gray-800 mb-3">Informations du fichier</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-orange-50 rounded-lg p-4">
+                            <p class="text-sm text-gray-600">Type</p>
+                            <p id="imageType" class="font-bold text-gray-800">--</p>
+                        </div>
+                        <div class="bg-orange-50 rounded-lg p-4">
+                            <p class="text-sm text-gray-600">Taille</p>
+                            <p id="imageSize" class="font-bold text-gray-800">-- MB</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Options de traitement -->
+                <div class="mt-6">
+                    <h3 class="font-bold text-gray-800 mb-3"><i class="fas fa-sliders-h mr-2"></i>Options de traitement</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="flex items-center justify-between mb-2">
+                                <span class="text-gray-700">Qualité de compression:</span>
+                                <span id="quickQualityValue" class="font-bold text-orange-600">80%</span>
+                            </label>
+                            <input type="range" id="quickCompressionSlider" min="10" max="100" value="80" class="compression-slider">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="quickCompressBtn" class="compression-btn py-3 rounded-lg flex items-center justify-center disabled:opacity-50" disabled>
+                                <i class="fas fa-compress-alt mr-2"></i>Compresser
+                            </button>
+                            <button id="previewFileBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center disabled:opacity-50" disabled>
+                                <i class="fas fa-eye mr-2"></i>Prévisualiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Carte de résultat améliorée -->
+            <div class="design-card rounded-2xl p-6 slide-up">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-4">
+                        <i class="fas fa-magic text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">2. Résultat traité</h2>
+                        <p class="text-gray-600">Fichier traité par l'IA</p>
+                    </div>
+                </div>
+                
+                <!-- Aperçu du résultat -->
+                <div class="image-preview-container rounded-xl overflow-hidden mb-6 p-4" id="resultContainer">
+                    <div class="h-64 flex flex-col items-center justify-center">
+                        <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-400 text-center">Le résultat apparaîtra ici après traitement</p>
+                        <p class="text-gray-400 text-sm mt-2">Formats supportés: PDF, JPG, PNG, DOC, DOCX</p>
+                    </div>
+                </div>
+                
+                <!-- Zone d'affichage du fichier converti -->
+                <div id="convertedFilePreview" class="hidden mb-4">
+                    <div class="file-preview-item converted-file">
+                        <div class="file-icon bg-green-500">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="file-details">
+                            <div class="flex justify-between items-center">
+                                <p id="convertedFileName" class="file-name">document-converti.pdf</p>
+                                <span class="file-status status-converted">Converti</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <p id="convertedFileSize" class="file-size">1.2 MB</p>
+                                <p id="conversionTypeLabel" class="file-size">PDF</p>
+                            </div>
+                        </div>
+                        <button id="previewConvertedBtn" class="file-action-btn preview-btn ml-2">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <button id="removeBgBtn" class="remove-bg-btn w-full py-4 rounded-lg text-lg font-bold disabled:opacity-60 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-robot mr-2"></i>
+                        <span id="btnText">Traiter avec IA</span>
+                        <span id="loadingText" class="hidden">
+                            <div class="loader mx-auto"></div>
+                        </span>
+                    </button>
+                    
+                    <div id="successSection" class="hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="result-badge px-4 py-2 rounded-full flex items-center">
+                                    <i class="fas fa-check mr-2"></i>
+                                    Traitement réussi !
+                                </div>
+                            </div>
+                            <div class="text-green-600 font-bold">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span id="processingTime">0</span>s
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="downloadBtn" class="bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition flex items-center justify-center">
+                                <i class="fas fa-download mr-2"></i>
+                                Télécharger
+                            </button>
+                            <button id="shareBtn" class="bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition flex items-center justify-center">
+                                <i class="fas fa-share-alt mr-2"></i>
+                                Partager
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section Convertisseur de documents améliorée -->
+        <div class="converter-card rounded-2xl p-6 mb-8 slide-up" id="converter">
+            <div class="flex items-center mb-8">
+                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-500 mr-4">
+                    <i class="fas fa-exchange-alt text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Convertisseur de Documents Pro</h2>
+                    <p class="text-gray-600">Convertissez vos fichiers entre différents formats en temps réel</p>
+                </div>
+            </div>
+            
+            <!-- Options de conversion -->
+            <div class="mb-8">
+                <h3 class="font-bold text-gray-700 mb-4 text-lg">Choisissez le type de conversion :</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Word to PDF -->
+                    <div class="conversion-option active" data-conversion="word-to-pdf">
+                        <div class="conversion-icon bg-blue-100 text-blue-600">
+                            <i class="fas fa-file-word"></i>
+                        </div>
+                        <h4 class="font-bold">Word → PDF</h4>
+                        <p class="text-sm text-gray-500 mt-2">DOC, DOCX → PDF</p>
+                    </div>
+                    
+                    <!-- PDF to Word -->
+                    <div class="conversion-option" data-conversion="pdf-to-word">
+                        <div class="conversion-icon bg-green-100 text-green-600">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h4 class="font-bold">PDF → Word</h4>
+                        <p class="text-sm text-gray-500 mt-2">PDF → DOC, DOCX</p>
+                    </div>
+                    
+                    <!-- Image to PDF -->
+                    <div class="conversion-option" data-conversion="image-to-pdf">
+                        <div class="conversion-icon bg-red-100 text-red-600">
+                            <i class="fas fa-file-image"></i>
+                        </div>
+                        <h4 class="font-bold">Image → PDF</h4>
+                        <p class="text-sm text-gray-500 mt-2">JPG, PNG → PDF</p>
+                    </div>
+                    
+                    <!-- PDF to Image -->
+                    <div class="conversion-option" data-conversion="pdf-to-image">
+                        <div class="conversion-icon bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h4 class="font-bold">PDF → Image</h4>
+                        <p class="text-sm text-gray-500 mt-2">PDF → JPG, PNG</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Zone de dépôt améliorée -->
+            <div class="mb-8">
+                <div class="conversion-dropzone" id="conversionDropZone">
+                    <div class="py-8">
+                        <i class="fas fa-cloud-upload-alt text-5xl text-purple-400 mb-4"></i>
+                        <p class="text-xl font-medium text-gray-700 mb-2">Glissez vos fichiers ici</p>
+                        <p class="text-gray-500 mb-6">ou cliquez pour parcourir vos fichiers</p>
+                        <button id="conversionUploadBtn" class="conversion-btn px-8 py-3 rounded-lg">
+                            <i class="fas fa-folder-open mr-2"></i>Sélectionner des fichiers
+                        </button>
+                        <input type="file" id="conversionFileInput" class="hidden" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx,.ppt,.pptx">
+                        <p class="text-sm text-gray-400 mt-4" id="conversionInfo">Formats supportés : DOC, DOCX, PDF, JPG, PNG, XLS, XLSX, PPT, PPTX</p>
+                    </div>
+                </div>
+                
+                <!-- Liste des fichiers avec prévisualisation -->
+                <div id="fileList" class="mt-4 hidden">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-gray-700">Fichiers sélectionnés :</h4>
+                        <span class="text-sm text-gray-500" id="fileCount">0 fichier</span>
+                    </div>
+                    <div id="fileItems" class="space-y-3 max-h-80 overflow-y-auto file-preview-container"></div>
+                </div>
+            </div>
+            
+            <!-- Options de conversion avancées -->
+            <div class="mb-8">
+                <h3 class="font-bold text-gray-700 mb-4 text-lg">Options avancées :</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-compress text-purple-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Compression PDF</p>
+                                    <p class="text-sm text-gray-500">Réduire la taille du fichier</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="compressOption" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-lock text-purple-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Protection par mot de passe</p>
+                                    <p class="text-sm text-gray-500">Sécuriser le fichier PDF</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="protectOption" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-merge text-purple-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Fusionner les fichiers</p>
+                                    <p class="text-sm text-gray-500">Combiner plusieurs fichiers</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="mergeOption" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-eye text-purple-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium text-gray-800">Reconnaissance de texte</p>
+                                    <p class="text-sm text-gray-500">OCR pour images et PDF</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="ocrOption" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bouton de conversion avec progression -->
+            <div class="text-center">
+                <button id="convertBtn" class="conversion-btn px-10 py-4 text-lg font-bold disabled:opacity-50 w-full" disabled>
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    <span id="convertBtnText">Convertir les fichiers</span>
+                    <span id="convertingText" class="hidden">
+                        <div class="loader mx-auto"></div>
+                    </span>
+                </button>
+                
+                <!-- Barre de progression -->
+                <div id="conversionProgress" class="mt-4 hidden">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium text-purple-700">Conversion en cours...</span>
+                        <span id="progressPercent" class="text-sm font-medium text-purple-700">0%</span>
+                    </div>
+                    <div class="conversion-progress">
+                        <div id="conversionProgressBar" class="progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Résultats de conversion -->
+            <div id="conversionResults" class="mt-8 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="result-badge px-4 py-2 rounded-full flex items-center">
+                            <i class="fas fa-check mr-2"></i>
+                            Conversion terminée !
+                        </div>
+                    </div>
+                    <div class="text-green-600 font-bold">
+                        <i class="fas fa-clock mr-1"></i>
+                        <span id="conversionTime">0</span>s
+                    </div>
+                </div>
+                
+                <!-- Fichiers convertis -->
+                <div class="mb-6">
+                    <h4 class="font-bold text-gray-700 mb-3">Fichiers convertis :</h4>
+                    <div id="convertedFilesList" class="space-y-3 max-h-60 overflow-y-auto"></div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="downloadAllBtn" class="download-all-btn py-3 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Tout télécharger
+                    </button>
+                    <button id="newConversionBtn" class="bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-redo mr-2"></i>
+                        Nouvelle conversion
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- Modal pour prévisualisation -->
+    <div id="previewModal" class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center px-4">
+        <div class="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Prévisualisation</h3>
+                <button id="closePreviewBtn" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="modalPreviewContent" class="text-center">
+                <div class="h-64 flex items-center justify-center">
+                    <div class="text-center">
+                        <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-400">Aucun fichier à prévisualiser</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let originalImage = null;
+        let processedImage = null;
+        let originalImageData = null;
+        let startTime = null;
+        let selectedFiles = [];
+        let currentConversionType = 'word-to-pdf';
+        let conversionStartTime = null;
+        let uploadedFile = null;
+        
+        // Éléments DOM pour la navbar
+        const languageDropdownBtn = document.getElementById('languageDropdownBtn');
+        const languageDropdown = document.getElementById('languageDropdown');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        // Éléments DOM pour l'éditeur amélioré
+        const imageInput = document.getElementById('imageInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const dropZone = document.getElementById('dropZone');
+        const removeBgBtn = document.getElementById('removeBgBtn');
+        const quickCompressBtn = document.getElementById('quickCompressBtn');
+        const quickCompressionSlider = document.getElementById('quickCompressionSlider');
+        const quickQualityValue = document.getElementById('quickQualityValue');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const previewFileBtn = document.getElementById('previewFileBtn');
+        const originalImageEl = document.getElementById('originalImage');
+        const resultImageEl = document.getElementById('resultImage');
+        const imageType = document.getElementById('imageType');
+        const imageSize = document.getElementById('imageSize');
+        const successSection = document.getElementById('successSection');
+        const btnText = document.getElementById('btnText');
+        const loadingText = document.getElementById('loadingText');
+        const processingTime = document.getElementById('processingTime');
+        const resultContainer = document.getElementById('resultContainer');
+        const filePreviewContainer = document.getElementById('filePreviewContainer');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileType = document.getElementById('fileType');
+        const fileStatus = document.getElementById('fileStatus');
+        const removeFileBtn = document.getElementById('removeFileBtn');
+        const convertedFilePreview = document.getElementById('convertedFilePreview');
+        const convertedFileName = document.getElementById('convertedFileName');
+        const convertedFileSize = document.getElementById('convertedFileSize');
+        const conversionTypeLabel = document.getElementById('conversionTypeLabel');
+        const previewConvertedBtn = document.getElementById('previewConvertedBtn');
+        
+        // Éléments DOM pour le convertisseur amélioré
+        const conversionOptions = document.querySelectorAll('.conversion-option');
+        const conversionDropZone = document.getElementById('conversionDropZone');
+        const conversionUploadBtn = document.getElementById('conversionUploadBtn');
+        const conversionFileInput = document.getElementById('conversionFileInput');
+        const conversionInfo = document.getElementById('conversionInfo');
+        const fileList = document.getElementById('fileList');
+        const fileItems = document.getElementById('fileItems');
+        const fileCount = document.getElementById('fileCount');
+        const convertBtn = document.getElementById('convertBtn');
+        const convertBtnText = document.getElementById('convertBtnText');
+        const convertingText = document.getElementById('convertingText');
+        const conversionProgress = document.getElementById('conversionProgress');
+        const conversionProgressBar = document.getElementById('conversionProgressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        const conversionResults = document.getElementById('conversionResults');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const newConversionBtn = document.getElementById('newConversionBtn');
+        const convertedFilesList = document.getElementById('convertedFilesList');
+        const conversionTime = document.getElementById('conversionTime');
+        
+        // Éléments DOM pour le modal
+        const previewModal = document.getElementById('previewModal');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const modalPreviewContent = document.getElementById('modalPreviewContent');
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Design AI Pro avec Sarah AI - Éditeur d\'image et convertisseur initialisé');
+            updateConversionInfo();
+            
+            // Simuler que Sarah AI parle à l'utilisateur
+            setTimeout(() => {
+                console.log("Sarah AI: Bonjour ! Je suis là pour vous aider avec l'édition d'images et la conversion de documents.");
+            }, 1000);
+        });
+        
+        // Gestion de la navbar
+        languageDropdownBtn.addEventListener('click', () => {
+            languageDropdown.style.display = languageDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Fermer le dropdown quand on clique ailleurs
+        document.addEventListener('click', (e) => {
+            if (!languageDropdownBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                languageDropdown.style.display = 'none';
+            }
+            if (!mobileMenuToggle.contains(e.target) && !mobileMenu.contains(e.target) && e.target.id !== 'mobileVideoCall' && e.target.id !== 'mobileVoiceToggle') {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+        
+        // Gestion du menu mobile
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Gestion des langues
+        document.querySelectorAll('.dropdown-item, .mobile-lang-btn').forEach(item => {
+            item.addEventListener('click', () => {
+                const lang = item.dataset.lang;
+                changeLanguage(lang);
+                languageDropdown.style.display = 'none';
+                mobileMenu.classList.add('hidden');
+            });
+        });
+        
+        function changeLanguage(lang) {
+            const languages = {
+                'fr': { name: 'Français', badge: 'Français', mobileBadge: 'FR' },
+                'en': { name: 'English', badge: 'English', mobileBadge: 'EN' },
+                'ln': { name: 'Lingala', badge: 'Lingala', mobileBadge: 'LN' }
+            };
+            
+            const langData = languages[lang];
+            if (langData) {
+                // Mettre à jour le badge du desktop
+                const badge = document.getElementById('currentLanguageBadge');
+                badge.innerHTML = `
+                    <img src="SARAH AI.jpg" alt="Sarah IA" class="w-4 h-4 rounded-full mr-2">
+                    <span>${langData.badge}</span>
+                `;
+                
+                // Mettre à jour le bouton de sélection
+                languageDropdownBtn.innerHTML = `
+                    <img src="SARAH AI.jpg" alt="Sarah IA" class="w-5 h-5 rounded-full mr-2 object-cover">
+                    <span class="hidden md:inline">${langData.name}</span>
+                    <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                `;
+                
+                // Mettre à jour le badge mobile
+                const mobileBadge = document.getElementById('mobileLanguageBadge');
+                mobileBadge.innerHTML = `
+                    <img src="SARAH AI.jpg" alt="Sarah IA" class="w-3 h-3 rounded-full mr-1 object-cover">
+                    <span>${langData.mobileBadge}</span>
+                `;
+                
+                // Changer la langue du site (simulé)
+                console.log(`Langue changée: ${langData.name}`);
+                
+                // Afficher une notification
+                showNotification(`Langue changée en ${langData.name}`, 'info');
+            }
+        }
+        
+        // Gestion des boutons d'appel vidéo
+        document.querySelectorAll('#navVideoCall, #mobileCallBtn, #mobileVideoCall').forEach(btn => {
+            btn.addEventListener('click', () => {
+                showNotification("Fonctionnalité d'appel vidéo bientôt disponible!", 'info');
+            });
+        });
+        
+        // Gestion des boutons de mode vocal
+        document.querySelectorAll('#navVoiceToggle, #mobileVoiceToggle, #mobileVoiceToggleBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const isActive = btn.classList.contains('bg-green-500');
+                if (isActive) {
+                    btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    btn.classList.add('bg-orange-500', 'hover:bg-orange-600');
+                    showNotification("Mode vocal désactivé", 'warning');
+                } else {
+                    btn.classList.remove('bg-orange-500', 'hover:bg-orange-600');
+                    btn.classList.add('bg-green-500', 'hover:bg-green-600');
+                    showNotification("Mode vocal activé - Parlez maintenant", 'success');
+                }
+            });
+        });
+        
+        // Gestion des boutons de recherche
+        document.querySelectorAll('#searchModeBtn, #mobileSearchToggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                showNotification("Mode recherche activé", 'info');
+            });
+        });
+        
+        // Gestion des boutons d'images
+        document.querySelectorAll('#imageModeBtn, #mobileImageToggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                showNotification("Mode génération d'images activé", 'info');
+            });
+        });
+        
+        // Gestion des questions
+        document.getElementById('mobileQuestionsToggle').addEventListener('click', () => {
+            showNotification("Mode questions-réponses activé", 'info');
+        });
+        
+        // Gestionnaires d'événements pour l'éditeur amélioré
+        uploadBtn.addEventListener('click', () => imageInput.click());
+        imageInput.addEventListener('change', handleFileUpload);
+        
+        // Glisser-déposer pour l'éditeur
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            
+            if (e.dataTransfer.files.length) {
+                handleFileUpload({ target: { files: e.dataTransfer.files } });
+            }
+        });
+        
+        // Compression rapide
+        quickCompressionSlider.addEventListener('input', (e) => {
+            quickQualityValue.textContent = `${e.target.value}%`;
+        });
+        
+        quickCompressBtn.addEventListener('click', compressFile);
+        removeBgBtn.addEventListener('click', processFileWithAI);
+        previewFileBtn.addEventListener('click', previewUploadedFile);
+        removeFileBtn.addEventListener('click', removeUploadedFile);
+        downloadBtn.addEventListener('click', downloadProcessedFile);
+        shareBtn.addEventListener('click', shareFile);
+        previewConvertedBtn.addEventListener('click', previewConvertedFile);
+        
+        // Gestionnaires d'événements pour le convertisseur amélioré
+        conversionOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                conversionOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                currentConversionType = option.dataset.conversion;
+                updateConversionInfo();
+            });
+        });
+        
+        conversionUploadBtn.addEventListener('click', () => conversionFileInput.click());
+        conversionFileInput.addEventListener('change', handleConversionFiles);
+        
+        // Glisser-déposer pour le convertisseur
+        conversionDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            conversionDropZone.classList.add('drag-over');
+        });
+        
+        conversionDropZone.addEventListener('dragleave', () => {
+            conversionDropZone.classList.remove('drag-over');
+        });
+        
+        conversionDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            conversionDropZone.classList.remove('drag-over');
+            
+            if (e.dataTransfer.files.length) {
+                handleConversionFiles({ target: { files: e.dataTransfer.files } });
+            }
+        });
+        
+        convertBtn.addEventListener('click', startConversion);
+        downloadAllBtn.addEventListener('click', downloadAllConvertedFiles);
+        newConversionBtn.addEventListener('click', resetConversion);
+        closePreviewBtn.addEventListener('click', () => {
+            previewModal.classList.add('hidden');
+        });
+        
+        // Fermer le modal en cliquant en dehors
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) {
+                previewModal.classList.add('hidden');
+            }
+        });
+        
+        // Fonctions pour l'éditeur amélioré
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadFile(file);
+            }
+        }
+        
+        function loadFile(file) {
+            // Vérifier la taille du fichier (max 20MB)
+            if (file.size > 20 * 1024 * 1024) {
+                alert('Le fichier est trop volumineux. Veuillez sélectionner un fichier de moins de 20MB.');
+                return;
+            }
+            
+            uploadedFile = file;
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            // Afficher les informations du fichier
+            filePreviewContainer.classList.remove('hidden');
+            fileName.textContent = file.name;
+            fileSize.textContent = `${fileSizeMB} MB`;
+            fileType.textContent = getFileType(fileExtension);
+            imageType.textContent = getFileType(fileExtension);
+            imageSize.textContent = `${fileSizeMB} MB`;
+            
+            // Activer les boutons
+            quickCompressBtn.disabled = false;
+            previewFileBtn.disabled = false;
+            removeBgBtn.disabled = false;
+            
+            // Si c'est une image, afficher un aperçu
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    originalImage = new Image();
+                    originalImage.onload = function() {
+                        resultContainer.innerHTML = `
+                            <div class="text-center">
+                                <img src="${e.target.result}" alt="Image importée" class="preview-image mx-auto mb-4">
+                                <p class="text-gray-600">${file.name}</p>
+                                <p class="text-sm text-gray-400">${originalImage.width} × ${originalImage.height} pixels</p>
+                            </div>
+                        `;
+                    };
+                    originalImage.src = e.target.result;
+                    originalImageData = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Pour les autres fichiers, afficher une icône
+                const fileIcon = getFileIcon(fileExtension);
+                resultContainer.innerHTML = `
+                    <div class="h-64 flex flex-col items-center justify-center">
+                        <div class="${fileIcon.color} rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                            <i class="${fileIcon.icon} text-2xl text-white"></i>
+                        </div>
+                        <p class="text-gray-800 font-medium">${file.name}</p>
+                        <p class="text-gray-600">${getFileType(fileExtension)}</p>
+                        <p class="text-sm text-gray-400 mt-2">${fileSizeMB} MB</p>
+                    </div>
+                `;
+            }
+            
+            showNotification(`Fichier "${file.name}" importé avec succès`, 'success');
+        }
+        
+        function getFileType(extension) {
+            const types = {
+                'jpg': 'Image JPEG',
+                'jpeg': 'Image JPEG',
+                'png': 'Image PNG',
+                'gif': 'Image GIF',
+                'pdf': 'Document PDF',
+                'doc': 'Document Word',
+                'docx': 'Document Word',
+                'xls': 'Feuille Excel',
+                'xlsx': 'Feuille Excel',
+                'ppt': 'Présentation PowerPoint',
+                'pptx': 'Présentation PowerPoint'
+            };
+            return types[extension] || 'Fichier';
+        }
+        
+        function getFileIcon(extension) {
+            const icons = {
+                'jpg': { icon: 'fas fa-image', color: 'bg-red-500' },
+                'jpeg': { icon: 'fas fa-image', color: 'bg-red-500' },
+                'png': { icon: 'fas fa-image', color: 'bg-blue-500' },
+                'gif': { icon: 'fas fa-image', color: 'bg-green-500' },
+                'pdf': { icon: 'fas fa-file-pdf', color: 'bg-red-600' },
+                'doc': { icon: 'fas fa-file-word', color: 'bg-blue-600' },
+                'docx': { icon: 'fas fa-file-word', color: 'bg-blue-600' },
+                'xls': { icon: 'fas fa-file-excel', color: 'bg-green-600' },
+                'xlsx': { icon: 'fas fa-file-excel', color: 'bg-green-600' },
+                'ppt': { icon: 'fas fa-file-powerpoint', color: 'bg-orange-600' },
+                'pptx': { icon: 'fas fa-file-powerpoint', color: 'bg-orange-600' }
+            };
+            return icons[extension] || { icon: 'fas fa-file', color: 'bg-gray-500' };
+        }
+        
+        function removeUploadedFile() {
+            uploadedFile = null;
+            filePreviewContainer.classList.add('hidden');
+            resultContainer.innerHTML = `
+                <div class="h-64 flex flex-col items-center justify-center">
+                    <i class="fas fa-file-alt text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-400 text-center">Le résultat apparaîtra ici après traitement</p>
+                    <p class="text-gray-400 text-sm mt-2">Formats supportés: PDF, JPG, PNG, DOC, DOCX</p>
+                </div>
+            `;
+            quickCompressBtn.disabled = true;
+            previewFileBtn.disabled = true;
+            removeBgBtn.disabled = true;
+            successSection.classList.add('hidden');
+            convertedFilePreview.classList.add('hidden');
+        }
+        
+        function previewUploadedFile() {
+            if (!uploadedFile) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                modalPreviewContent.innerHTML = `
+                    <div class="text-center">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">${uploadedFile.name}</h4>
+                        <div class="bg-gray-100 rounded-lg p-6">
+                            <div class="${getFileIcon(uploadedFile.name.split('.').pop()).color} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                                <i class="${getFileIcon(uploadedFile.name.split('.').pop()).icon} text-3xl text-white"></i>
+                            </div>
+                            <p class="text-gray-700">Type: ${getFileType(uploadedFile.name.split('.').pop())}</p>
+                            <p class="text-gray-700">Taille: ${(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+                            <p class="text-gray-700">Dernière modification: ${new Date(uploadedFile.lastModified).toLocaleDateString()}</p>
+                        </div>
+                        <p class="text-gray-500 text-sm mt-4">Pour une prévisualisation complète, téléchargez le fichier</p>
+                    </div>
+                `;
+                previewModal.classList.remove('hidden');
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+        
+        function compressFile() {
+            if (!uploadedFile || !uploadedFile.type.startsWith('image/')) {
+                alert('Cette fonctionnalité est uniquement disponible pour les images.');
+                return;
+            }
+            
+            const quality = quickCompressionSlider.value / 100;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob((blob) => {
+                    new Compressor(blob, {
+                        quality: quality,
+                        success(result) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                // Afficher le résultat
+                                resultContainer.innerHTML = `
+                                    <div class="text-center">
+                                        <img src="${e.target.result}" alt="Image compressée" class="preview-image mx-auto mb-4">
+                                        <p class="text-gray-600">${uploadedFile.name} (compressé)</p>
+                                        <p class="text-sm text-gray-400">Taille réduite de ${((uploadedFile.size - result.size) / uploadedFile.size * 100).toFixed(0)}%</p>
+                                    </div>
+                                `;
+                                
+                                // Afficher la section de succès
+                                successSection.classList.remove('hidden');
+                                processingTime.textContent = "0.5";
+                                btnText.textContent = "Image compressée";
+                                
+                                // Mettre à jour l'aperçu du fichier converti
+                                convertedFilePreview.classList.remove('hidden');
+                                convertedFileName.textContent = `compressed-${uploadedFile.name}`;
+                                convertedFileSize.textContent = `${(result.size / (1024 * 1024)).toFixed(2)} MB`;
+                                conversionTypeLabel.textContent = 'JPG';
+                                
+                                // Sauvegarder l'image traitée
+                                processedImage = e.target.result;
+                                
+                                showNotification("Image compressée avec succès", 'success');
+                            };
+                            reader.readAsDataURL(result);
+                        },
+                        error(err) {
+                            console.error(err);
+                            alert('Erreur lors de la compression de l\'image');
+                        }
+                    });
+                }, 'image/jpeg', quality);
+            };
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+        
+        function processFileWithAI() {
+            if (!uploadedFile) return;
+            
+            startTime = Date.now();
+            btnText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+            removeBgBtn.disabled = true;
+            
+            // Simuler un traitement IA (2-4 secondes)
+            const processingTime = 2000 + Math.random() * 2000;
+            
+            setTimeout(() => {
+                // Simuler différents traitements selon le type de fichier
+                if (uploadedFile.type.startsWith('image/')) {
+                    simulateImageProcessing();
+                } else if (uploadedFile.name.toLowerCase().endsWith('.pdf')) {
+                    simulatePDFProcessing();
+                } else if (uploadedFile.name.toLowerCase().endsWith('.doc') || uploadedFile.name.toLowerCase().endsWith('.docx')) {
+                    simulateWordProcessing();
+                } else {
+                    simulateGenericProcessing();
+                }
+                
+                const endTime = Date.now();
+                const timeTaken = ((endTime - startTime) / 1000).toFixed(1);
+                document.getElementById('processingTime').textContent = timeTaken;
+                
+                btnText.classList.remove('hidden');
+                loadingText.classList.add('hidden');
+                successSection.classList.remove('hidden');
+                convertedFilePreview.classList.remove('hidden');
+                
+                showNotification("Traitement IA terminé avec succès", 'success');
+            }, processingTime);
+        }
+        
+        function simulateImageProcessing() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Créer un effet de suppression de fond simulé
+            ctx.fillStyle = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Ajouter du texte pour simuler le résultat
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Arrière-plan supprimé', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.font = '16px Arial';
+            ctx.fillText('Image traitée par IA', canvas.width / 2, canvas.height / 2 + 20);
+            
+            resultContainer.innerHTML = `
+                <div class="text-center">
+                    <img src="${canvas.toDataURL()}" alt="Image traitée" class="preview-image mx-auto mb-4">
+                    <p class="text-gray-600">${uploadedFile.name} (traitée)</p>
+                    <p class="text-sm text-gray-400">Arrière-plan supprimé par IA</p>
+                </div>
+            `;
+            
+            convertedFileName.textContent = `no-bg-${uploadedFile.name.replace(/\.[^/.]+$/, "")}.png`;
+            convertedFileSize.textContent = "0.8 MB";
+            conversionTypeLabel.textContent = 'PNG';
+            processedImage = canvas.toDataURL();
+        }
+        
+        function simulatePDFProcessing() {
+            resultContainer.innerHTML = `
+                <div class="h-64 flex flex-col items-center justify-center">
+                    <div class="bg-red-600 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                        <i class="fas fa-file-pdf text-2xl text-white"></i>
+                    </div>
+                    <p class="text-gray-800 font-medium">PDF optimisé</p>
+                    <p class="text-gray-600">Document compressé et sécurisé</p>
+                    <p class="text-sm text-gray-400 mt-2">Taille réduite de 40%</p>
+                </div>
+            `;
+            
+            convertedFileName.textContent = `optimized-${uploadedFile.name}`;
+            convertedFileSize.textContent = `${(uploadedFile.size * 0.6 / (1024 * 1024)).toFixed(2)} MB`;
+            conversionTypeLabel.textContent = 'PDF';
+        }
+        
+        function simulateWordProcessing() {
+            resultContainer.innerHTML = `
+                <div class="h-64 flex flex-col items-center justify-center">
+                    <div class="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                        <i class="fas fa-file-word text-2xl text-white"></i>
+                    </div>
+                    <p class="text-gray-800 font-medium">Document formaté</p>
+                    <p class="text-gray-600">Mise en page améliorée par IA</p>
+                    <p class="text-sm text-gray-400 mt-2">Corrections orthographiques appliquées</p>
+                </div>
+            `;
+            
+            convertedFileName.textContent = `formatted-${uploadedFile.name}`;
+            convertedFileSize.textContent = `${(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB`;
+            conversionTypeLabel.textContent = 'DOCX';
+        }
+        
+        function simulateGenericProcessing() {
+            resultContainer.innerHTML = `
+                <div class="h-64 flex flex-col items-center justify-center">
+                    <div class="bg-purple-600 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                        <i class="fas fa-file-alt text-2xl text-white"></i>
+                    </div>
+                    <p class="text-gray-800 font-medium">Fichier traité</p>
+                    <p class="text-gray-600">Optimisé par intelligence artificielle</p>
+                    <p class="text-sm text-gray-400 mt-2">Prêt pour utilisation</p>
+                </div>
+            `;
+            
+            convertedFileName.textContent = `processed-${uploadedFile.name}`;
+            convertedFileSize.textContent = `${(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB`;
+            conversionTypeLabel.textContent = uploadedFile.name.split('.').pop().toUpperCase();
+        }
+        
+        function downloadProcessedFile() {
+            if (!uploadedFile) return;
+            
+            // Créer un fichier de démonstration
+            let content = "Ceci est un fichier traité généré par Design AI Pro.\n\n";
+            content += `Fichier original: ${uploadedFile.name}\n`;
+            content += `Type: ${getFileType(uploadedFile.name.split('.').pop())}\n`;
+            content += `Taille originale: ${(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB\n`;
+            content += `Date de traitement: ${new Date().toLocaleString()}\n`;
+            content += `Traité par: Sarah IA\n\n`;
+            content += "Merci d'utiliser Design AI Pro!";
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = convertedFileName.textContent || `processed-${uploadedFile.name}`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification("Téléchargement démarré", 'success');
+        }
+        
+        function shareFile() {
+            showNotification("Fonctionnalité de partage bientôt disponible!", 'info');
+        }
+        
+        function previewConvertedFile() {
+            modalPreviewContent.innerHTML = `
+                <div class="text-center">
+                    <div class="${getFileIcon(convertedFileName.textContent.split('.').pop()).color} rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i class="${getFileIcon(convertedFileName.textContent.split('.').pop()).icon} text-3xl text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">${convertedFileName.textContent}</h4>
+                    <p class="text-gray-600">Fichier converti/optimisé</p>
+                    <div class="bg-gray-100 rounded-lg p-4 mt-4">
+                        <p class="text-gray-700"><i class="fas fa-info-circle mr-2"></i>Prévisualisation limitée</p>
+                        <p class="text-sm text-gray-500 mt-2">Pour voir le contenu complet, téléchargez le fichier.</p>
+                    </div>
+                </div>
+            `;
+            previewModal.classList.remove('hidden');
+        }
+        
+        // Fonctions pour le convertisseur amélioré
+        function updateConversionInfo() {
+            const infoMap = {
+                'word-to-pdf': 'Formats supportés : DOC, DOCX',
+                'pdf-to-word': 'Formats supportés : PDF',
+                'image-to-pdf': 'Formats supportés : JPG, PNG, GIF, BMP',
+                'pdf-to-image': 'Formats supportés : PDF'
+            };
+            
+            conversionInfo.textContent = infoMap[currentConversionType] || 'Formats supportés : DOC, DOCX, PDF, JPG, PNG';
+        }
+        
+        function handleConversionFiles(e) {
+            const files = Array.from(e.target.files);
+            addConversionFiles(files);
+        }
+        
+        function addConversionFiles(files) {
+            // Vérifier le nombre de fichiers
+            if (files.length > 10) {
+                alert('Vous ne pouvez convertir que 10 fichiers maximum à la fois.');
+                return;
+            }
+            
+            // Vérifier les formats de fichiers selon le type de conversion
+            const validFiles = files.filter(file => isValidFileForConversion(file, currentConversionType));
+            
+            if (validFiles.length === 0) {
+                alert('Aucun fichier valide pour ce type de conversion.');
+                return;
+            }
+            
+            if (validFiles.length < files.length) {
+                alert('Certains fichiers ont été ignorés car ils ne sont pas supportés pour ce type de conversion.');
+            }
+            
+            // Ajouter les fichiers valides
+            selectedFiles = [...selectedFiles, ...validFiles];
+            updateFileList();
+            
+            // Activer le bouton de conversion
+            convertBtn.disabled = false;
+            
+            showNotification(`${validFiles.length} fichier(s) ajouté(s)`, 'success');
+        }
+        
+        function isValidFileForConversion(file, conversionType) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            
+            const typeMap = {
+                'word-to-pdf': ['doc', 'docx'],
+                'pdf-to-word': ['pdf'],
+                'image-to-pdf': ['jpg', 'jpeg', 'png', 'gif', 'bmp'],
+                'pdf-to-image': ['pdf']
+            };
+            
+            return typeMap[conversionType]?.includes(ext) || false;
+        }
+        
+        function updateFileList() {
+            if (selectedFiles.length === 0) {
+                fileList.classList.add('hidden');
+                return;
+            }
+            
+            fileItems.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                const fileIcon = getFileIcon(fileExtension);
+                
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-preview-item';
+                fileItem.innerHTML = `
+                    <div class="file-icon ${fileIcon.color}">
+                        <i class="${fileIcon.icon}"></i>
+                    </div>
+                    <div class="file-details">
+                        <div class="flex justify-between items-center">
+                            <p class="file-name">${file.name}</p>
+                            <span class="file-status status-uploaded">Prêt</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <p class="file-size">${fileSize} MB</p>
+                            <p class="file-size">${fileExtension.toUpperCase()}</p>
+                        </div>
+                    </div>
+                    <button class="file-action-btn remove-btn ml-2 remove-conversion-file" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                fileItems.appendChild(fileItem);
+            });
+            
+            // Mettre à jour le compteur
+            fileCount.textContent = `${selectedFiles.length} fichier${selectedFiles.length > 1 ? 's' : ''}`;
+            
+            // Ajouter des événements pour les boutons de suppression
+            document.querySelectorAll('.remove-conversion-file').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    selectedFiles.splice(index, 1);
+                    updateFileList();
+                    
+                    if (selectedFiles.length === 0) {
+                        convertBtn.disabled = true;
+                    }
+                });
+            });
+            
+            fileList.classList.remove('hidden');
+        }
+        
+        function startConversion() {
+            if (selectedFiles.length === 0) return;
+            
+            conversionStartTime = Date.now();
+            convertBtnText.classList.add('hidden');
+            convertingText.classList.remove('hidden');
+            convertBtn.disabled = true;
+            conversionProgress.classList.remove('hidden');
+            
+            // Simuler la progression
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                conversionProgressBar.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    finishConversion();
+                }
+            }, 100);
+        }
+        
+        function finishConversion() {
+            convertingText.classList.add('hidden');
+            convertBtnText.classList.remove('hidden');
+            conversionProgress.classList.add('hidden');
+            conversionResults.classList.remove('hidden');
+            
+            const endTime = Date.now();
+            const timeTaken = ((endTime - conversionStartTime) / 1000).toFixed(1);
+            conversionTime.textContent = timeTaken;
+            
+            // Afficher les fichiers convertis
+            convertedFilesList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                const outputExtension = getOutputExtension();
+                const outputIcon = getFileIcon(outputExtension);
+                const convertedSize = (file.size * 0.8 / (1024 * 1024)).toFixed(2); // Simuler une compression
+                
+                const convertedFileItem = document.createElement('div');
+                convertedFileItem.className = 'file-preview-item converted-file';
+                convertedFileItem.innerHTML = `
+                    <div class="file-icon ${outputIcon.color}">
+                        <i class="${outputIcon.icon}"></i>
+                    </div>
+                    <div class="file-details">
+                        <div class="flex justify-between items-center">
+                            <p class="file-name">${file.name.replace(/\.[^/.]+$/, "")}-converted.${outputExtension}</p>
+                            <span class="file-status status-converted">Converti</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <p class="file-size">${convertedSize} MB</p>
+                            <p class="file-size">${getConversionTypeLabel()}</p>
+                        </div>
+                    </div>
+                    <button class="file-action-btn preview-btn ml-2 download-single-file" data-index="${index}">
+                        <i class="fas fa-download"></i>
+                    </button>
+                `;
+                convertedFilesList.appendChild(convertedFileItem);
+            });
+            
+            // Ajouter des événements pour les boutons de téléchargement individuels
+            document.querySelectorAll('.download-single-file').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    downloadSingleConvertedFile(index);
+                });
+            });
+            
+            showNotification(`Conversion terminée - ${selectedFiles.length} fichier(s) converti(s)`, 'success');
+        }
+        
+        function getOutputExtension() {
+            const extensionMap = {
+                'word-to-pdf': 'pdf',
+                'pdf-to-word': 'docx',
+                'image-to-pdf': 'pdf',
+                'pdf-to-image': 'jpg'
+            };
+            
+            return extensionMap[currentConversionType] || 'pdf';
+        }
+        
+        function getConversionTypeLabel() {
+            const typeMap = {
+                'word-to-pdf': 'Word → PDF',
+                'pdf-to-word': 'PDF → Word',
+                'image-to-pdf': 'Image → PDF',
+                'pdf-to-image': 'PDF → Image'
+            };
+            
+            return typeMap[currentConversionType] || 'Conversion';
+        }
+        
+        function downloadSingleConvertedFile(index) {
+            if (index < 0 || index >= selectedFiles.length) return;
+            
+            const file = selectedFiles[index];
+            const outputExtension = getOutputExtension();
+            
+            // Créer un fichier de démonstration
+            let content = `Fichier converti: ${file.name}\n`;
+            content += `Conversion: ${getConversionTypeLabel()}\n`;
+            content += `Date: ${new Date().toLocaleString()}\n`;
+            content += `Traité par: Design AI Pro avec Sarah IA\n\n`;
+            content += "Ceci est un fichier de démonstration.\n";
+            content += "Dans une application réelle, ce serait le fichier converti.\n";
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${file.name.replace(/\.[^/.]+$/, "")}-converted.${outputExtension}`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification("Téléchargement démarré", 'success');
+        }
+        
+        function downloadAllConvertedFiles() {
+            // Créer un ZIP simulé
+            let content = "ARCHIVE DES FICHIERS CONVERTIS\n";
+            content += "===============================\n\n";
+            
+            selectedFiles.forEach((file, index) => {
+                content += `${index + 1}. ${file.name}\n`;
+                content += `   Conversion: ${getConversionTypeLabel()}\n`;
+                content += `   Taille originale: ${(file.size / (1024 * 1024)).toFixed(2)} MB\n`;
+                content += `   Date: ${new Date().toLocaleString()}\n\n`;
+            });
+            
+            content += "Total: " + selectedFiles.length + " fichier(s)\n";
+            content += "Généré par Design AI Pro avec Sarah IA\n";
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `converted-files-${new Date().getTime()}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification("Téléchargement de l'archive démarré", 'success');
+        }
+        
+        function resetConversion() {
+            selectedFiles = [];
+            fileList.classList.add('hidden');
+            conversionResults.classList.add('hidden');
+            convertBtn.disabled = true;
+            conversionFileInput.value = '';
+        }
+        
+        // Fonction utilitaire pour afficher des notifications
+        function showNotification(message, type = 'info') {
+            // Créer l'élément de notification
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-0 opacity-100 ${type === 'success' ? 'bg-green-500 text-white' : type === 'error' ? 'bg-red-500 text-white' : type === 'warning' ? 'bg-yellow-500 text-white' : 'bg-blue-500 text-white'}`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Ajouter au body
+            document.body.appendChild(notification);
+            
+            // Supprimer après 3 secondes
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
